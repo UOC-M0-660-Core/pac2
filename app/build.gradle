@@ -45,4 +45,7 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.2.5'
     // TODO: Add Image Loading Library
     implementation 'com.squareup.picasso:picasso:2.71828'
+    // Admob
+    implementation 'com.google.android.gms:play-services-ads:19.2.0'
+
 }

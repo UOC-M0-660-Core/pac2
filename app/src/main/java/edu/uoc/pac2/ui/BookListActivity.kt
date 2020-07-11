@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
@@ -15,6 +18,7 @@ import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
 import edu.uoc.pac2.data.BooksInteractor
+import kotlinx.android.synthetic.main.activity_book_list.*
 
 /**
  * An activity representing a list of Books.
@@ -41,6 +45,9 @@ class BookListActivity : AppCompatActivity() {
 
         // Add books data to Firestore [Use for new project with empty Firestore Database]
         // FirestoreBookData.addBooksDataToFirestoreDatabase()
+
+        // Init AdMob
+        initAdMob()
     }
 
     // Init Top Toolbar
@@ -110,6 +117,21 @@ class BookListActivity : AppCompatActivity() {
         // Run in Background; accessing the local database is a memory-expensive operation
         AsyncTask.execute {
             booksInteractor.saveBooks(books)
+        }
+    }
+
+    private fun initAdMob() {
+        MobileAds.initialize(this) {
+            Log.i(TAG, "Admob initialize completed with status: $it")
+        }
+        // Load Ad
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+        // Optional: set some listeners
+        adView.adListener = object : AdListener() {
+            override fun onAdOpened() {
+                Log.i(TAG, "Ad opened! $$$$")
+            }
         }
     }
 
