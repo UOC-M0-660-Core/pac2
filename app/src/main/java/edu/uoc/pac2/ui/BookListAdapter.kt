@@ -61,7 +61,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.titleView.text = book.title
         holder.authorView.text = book.author
 
-        // TODO: Set View Click Listener
+        // Set View Click Listener
         holder.view.setOnClickListener { v ->
             val context = v.context
             val animation = ActivityOptions.makeCustomAnimation(holder.view.context, R.anim.translate_in_bottom,

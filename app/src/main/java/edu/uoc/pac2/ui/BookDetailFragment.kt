@@ -37,7 +37,7 @@ class BookDetailFragment : Fragment() {
     }
 
 
-    // TODO: Get Book for the given {@param ARG_ITEM_ID} Book id
+    // Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
         // Get Books Interactor
         val booksInteractor = (requireActivity().application as MyApplication).getBooksInteractor()
@@ -60,7 +60,7 @@ class BookDetailFragment : Fragment() {
         }
     }
 
-    // TODO: Init UI with book details
+    // Init UI with book details
     private fun initUI(book: Book) {
         requireView().findViewById<TextView>(R.id.book_author).text = book.author
         requireView().findViewById<TextView>(R.id.book_date).text = book.publicationDate
@@ -82,7 +82,7 @@ class BookDetailFragment : Fragment() {
         }
     }
 
-    // TODO: Share Book Title and Image URL
+    // Share Book Title and Image URL
     private fun shareContent(book: Book) {
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, book.title)

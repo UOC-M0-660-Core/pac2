@@ -68,7 +68,7 @@ class BookListActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    // TODO: Get Books and Update UI
+    // Get Books and Update UI
     private fun getBooks() {
         // First load whatever is stored locally
         loadBooksFromLocalDb()
@@ -97,7 +97,7 @@ class BookListActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Load Books from Room
+    // Load Books from Room
     private fun loadBooksFromLocalDb() {
         val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
         // Run in Background, accessing the local database is a memory-expensive operation
@@ -111,7 +111,7 @@ class BookListActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Save Books to Local Storage
+    // Save Books to Local Storage
     private fun saveBooksToLocalDatabase(books: List<Book>) {
         val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
         // Run in Background; accessing the local database is a memory-expensive operation

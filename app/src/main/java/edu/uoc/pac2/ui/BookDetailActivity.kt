@@ -34,7 +34,7 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Override finish animation for actionbar back arrow
+    // Override finish animation for actionbar back arrow
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) { // This ID represents the Home or Up button (back).
@@ -45,7 +45,7 @@ class BookDetailActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    // TODO: Override finish animation for phone back button
+    // Override finish animation for phone back button
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.translate_in_top, R.anim.translate_out_top)
