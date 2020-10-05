@@ -22,7 +22,6 @@ class MyApplication : Application() {
 
     fun hasInternetConnection(): Boolean {
         // TODO: Add Internet Check logic.
-        // Check Min and Target SDK Versions for Android API Compatibilities
         return true
     }
 }
