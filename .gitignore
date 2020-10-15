@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-*.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-=======
->>>>>>> cdefbc8... Added GitHub Classroom
 .DS_Store
 # Built application files
 *.apk

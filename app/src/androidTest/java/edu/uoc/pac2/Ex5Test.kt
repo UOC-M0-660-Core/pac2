@@ -33,6 +33,7 @@ class Ex5Test {
 
     @Test
     fun sharesBooksWithOtherApps() {
+        Thread.sleep(500L)
         Intents.init()
         // Click
         onView(ViewMatchers.withClassName(Matchers.endsWith("FloatingActionButton"))).perform(click())
