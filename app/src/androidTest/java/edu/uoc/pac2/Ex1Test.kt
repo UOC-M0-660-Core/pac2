@@ -2,17 +2,22 @@ package edu.uoc.pac2
 
 import android.content.Context
 import androidx.test.InstrumentationRegistry
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 
 /**
  * Created by alex on 04/10/2020.
  */
+@RunWith(AndroidJUnit4::class)
+@LargeTest
 class Ex1Test {
 
     private val firestoreDatabase = Firebase.firestore
