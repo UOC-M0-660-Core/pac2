@@ -5,6 +5,7 @@ package edu.uoc.pac2.data
  */
 
 data class Book(
+        val uid: Int? = null,
         val title: String? = null,
-        val author: String? = null
+        val author: String? = null,
 )
