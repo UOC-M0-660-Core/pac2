@@ -1,7 +1,6 @@
 package edu.uoc.pac2.ui
 
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +11,18 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
+import edu.uoc.pac2.databinding.ActivityBookListBinding
+import edu.uoc.pac2.databinding.FragmentBookDetailBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A fragment representing a single Book detail screen.
@@ -25,9 +30,13 @@ import edu.uoc.pac2.data.Book
  */
 class BookDetailFragment : Fragment() {
 
+    private var _binding: FragmentBookDetailBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_book_detail, container, false)
+                              savedInstanceState: Bundle?): View {
+        _binding = FragmentBookDetailBinding.inflate(layoutInflater)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,16 +48,18 @@ class BookDetailFragment : Fragment() {
 
     // Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
-        // Get Books Interactor
-        val booksInteractor = (requireActivity().application as MyApplication).getBooksInteractor()
+        // Get Books DAO
+        val bookDao = (requireActivity().application as MyApplication).getBookDao()
         // Here we force cast arguments, which could be null
         // This screen should never be opened without a detail itemId in the arguments.
         // If it's null the app will crash
         val id = arguments!!.getInt(ARG_ITEM_ID)
         // Get book
-        AsyncTask.execute {
-            val book: Book? = booksInteractor.getBookById(id)
-            activity?.runOnUiThread {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val book: Book? = withContext(Dispatchers.IO) {
+                bookDao.getBookById(id)
+            }
+            withContext(Dispatchers.Main) {
                 book?.let {
                     initUI(book)
                 } ?: run {
@@ -62,22 +73,17 @@ class BookDetailFragment : Fragment() {
 
     // Init UI with book details
     private fun initUI(book: Book) {
-        requireView().findViewById<TextView>(R.id.book_author).text = book.author
-        requireView().findViewById<TextView>(R.id.book_date).text = book.publicationDate
-        requireView().findViewById<TextView>(R.id.book_detail).text = book.description
-        val bookImage = requireView().findViewById<ImageView>(R.id.book_image)
-        Picasso.get().load(book.urlImage).into(bookImage)
+        binding.bookAuthor.text = book.author
+        binding.bookDate.text = book.publicationDate
+        binding.bookDetail.text = book.description
+        Picasso.get().load(book.urlImage).into(binding.bookImage)
         // Init AppBar
-        val headerImage = requireView().findViewById<ImageView>(R.id.image_header)
-        Picasso.get().load(book.urlImage).into(headerImage)
-        val appBarLayout: CollapsingToolbarLayout = requireView().findViewById(R.id.toolbar_layout)
-        appBarLayout.title = book.title
-        val toolbar = requireView().findViewById<Toolbar>(R.id.detail_toolbar)
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        Picasso.get().load(book.urlImage).into(binding.imageHeader)
+        binding.toolbarLayout.title = book.title
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.detailToolbar)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Init Share FAB
-        val fab: FloatingActionButton = requireView().findViewById(R.id.fab_share)
-        fab.setOnClickListener {
+        binding.fabShare.setOnClickListener {
             shareContent(book)
         }
     }

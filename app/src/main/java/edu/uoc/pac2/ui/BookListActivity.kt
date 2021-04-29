@@ -1,24 +1,28 @@
 package edu.uoc.pac2.ui
 
-import android.os.AsyncTask
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
-import edu.uoc.pac2.data.BooksInteractor
-import kotlinx.android.synthetic.main.activity_book_list.*
+import edu.uoc.pac2.databinding.ActivityBookListBinding
+import edu.uoc.pac2.util.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * An activity representing a list of Books.
@@ -30,11 +34,12 @@ class BookListActivity : AppCompatActivity() {
     private var database: FirebaseFirestore = Firebase.firestore
     private lateinit var adapter: BooksListAdapter
 
-    private var booksListener: ListenerRegistration? = null
+    private lateinit var binding: ActivityBookListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_book_list)
+        binding = ActivityBookListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Init UI
         initToolbar()
@@ -64,7 +69,13 @@ class BookListActivity : AppCompatActivity() {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         // Init Adapter
-        adapter = BooksListAdapter(emptyList())
+        adapter = BooksListAdapter {
+            val animation = ActivityOptions.makeCustomAnimation(this, R.anim.translate_in_bottom,
+                    R.anim.translate_out_bottom).toBundle()
+            val intent = Intent(this, BookDetailActivity::class.java)
+            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, it.uid)
+            startActivity(intent, animation)
+        }
         recyclerView.adapter = adapter
     }
 
@@ -75,48 +86,50 @@ class BookListActivity : AppCompatActivity() {
         // Check if Internet is available
         if ((application as MyApplication).hasInternetConnection()) {
             // Internet connection is available, get remote data
-            booksListener = database.collection("books")
-                    // Subscribe to remote book changes
-                    .addSnapshotListener { querySnapshot, exception ->
-                        // Success
-                        querySnapshot?.let {
-                            val books: List<Book> = querySnapshot.documents.mapNotNull {
-                                it.toObject(Book::class.java)
-                            }
-                            Log.i(TAG, "Got #${books.count()} books from Firestore")
-                            // Update Local content
-                            saveBooksToLocalDatabase(books)
-                            // Update UI
-                            adapter.setBooks(books)
+            lifecycleScope.launch {
+                try {
+                    // Convert listener to suspend function
+                    val querySnapshot = database.collection("books").get().await()
+                    // Handle result
+                    querySnapshot?.let {
+                        val books: List<Book> = querySnapshot.documents.mapNotNull {
+                            it.toObject(Book::class.java)
                         }
-                        // Error
-                        exception?.let {
-                            Log.w(TAG, "Error retrieving books from Firestore: $it")
-                        }
+                        Log.i(TAG, "Got #${books.count()} books from Firestore")
+                        // Update Local content
+                        saveBooksToLocalDatabase(books)
+                        // Update UI
+                        adapter.submitList(books)
                     }
+                } catch (t: Throwable) {
+                    Log.w(TAG, "Error retrieving books from Firestore", t)
+                }
+            }
         }
     }
 
     // Load Books from Room
     private fun loadBooksFromLocalDb() {
-        val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
+        val bookDao = (application as MyApplication).getBookDao()
         // Run in Background, accessing the local database is a memory-expensive operation
-        AsyncTask.execute {
+        lifecycleScope.launch {
             // Get Books
-            val books = booksInteractor.getAllBooks()
+            val books = withContext(Dispatchers.IO) {
+                bookDao.getAllBooks()
+            }
             // Update Adapter on the UI Thread
-            runOnUiThread {
-                adapter.setBooks(books)
+            withContext(Dispatchers.Main) {
+                adapter.submitList(books)
             }
         }
     }
 
     // Save Books to Local Storage
     private fun saveBooksToLocalDatabase(books: List<Book>) {
-        val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
+        val bookDao = (application as MyApplication).getBookDao()
         // Run in Background; accessing the local database is a memory-expensive operation
-        AsyncTask.execute {
-            booksInteractor.saveBooks(books)
+        lifecycleScope.launch(Dispatchers.IO) {
+            books.forEach { bookDao.saveBook(it) }
         }
     }
 
@@ -126,18 +139,12 @@ class BookListActivity : AppCompatActivity() {
         }
         // Load Ad
         val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        binding.adView.loadAd(adRequest)
         // Optional: set some listeners
-        adView.adListener = object : AdListener() {
+        binding.adView.adListener = object : AdListener() {
             override fun onAdOpened() {
                 Log.i(TAG, "Ad opened! $$$$")
             }
         }
-    }
-
-    override fun onDestroy() {
-        // IMPORTANT! Remove Firestore Change Listener to prevent memory leaks
-        booksListener?.remove()
-        super.onDestroy()
     }
 }
