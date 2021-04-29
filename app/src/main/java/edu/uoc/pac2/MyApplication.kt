@@ -8,16 +8,16 @@ import edu.uoc.pac2.data.*
  */
 class MyApplication : Application() {
 
-    private lateinit var booksInteractor: BooksInteractor
+    private lateinit var bookDao: BookDao
 
     override fun onCreate() {
         super.onCreate()
         // TODO: Init Room Database
-        // TODO: Init BooksInteractor
+        // TODO: Init BookDao
     }
 
-    fun getBooksInteractor(): BooksInteractor {
-        return booksInteractor
+    fun getBookDao(): BookDao {
+        return bookDao
     }
 
     fun hasInternetConnection(): Boolean {

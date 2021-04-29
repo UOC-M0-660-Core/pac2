@@ -36,18 +36,15 @@ class Ex3Test {
     }
 
     @Test
-    fun booksInteractorReturnsBook() {
+    fun bookDaoReturnsBook() {
         val scenario = ActivityScenario.launch(BookListActivity::class.java)
         Thread.sleep(TestData.networkWaitingMillis)
         scenario.onActivity {
             runBlocking {
-                val interactor = (it.application as MyApplication).getBooksInteractor()
+                val dao = (it.application as MyApplication).getBookDao()
                 val signal = CountDownLatch(1)
-                var localBooks = emptyList<Book>()
-                AsyncTask.execute {
-                    localBooks = interactor.getAllBooks()
-                    signal.countDown()
-                }
+                val localBooks = dao.getAllBooks()
+                signal.countDown()
                 signal.await()
                 assertTrue(localBooks.map { it.title }.contains(TestData.book.title))
             }

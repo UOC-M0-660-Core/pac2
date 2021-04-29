@@ -1,7 +1,5 @@
 package edu.uoc.pac2.ui
 
-import android.app.ActivityOptions
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +12,10 @@ import edu.uoc.pac2.data.Book
  * Adapter for a list of Books.
  */
 
-class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
+class BooksListAdapter(
+        private var books: List<Book>,
+        private val onBookClickListener: ((Book) -> Unit),
+) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
 
     private val evenViewType = 0
     private val oddViewType = 1
