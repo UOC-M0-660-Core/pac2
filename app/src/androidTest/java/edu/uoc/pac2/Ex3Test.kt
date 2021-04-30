@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import edu.uoc.pac2.data.Book
 import edu.uoc.pac2.ui.BookListActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -42,10 +43,9 @@ class Ex3Test {
         scenario.onActivity {
             runBlocking {
                 val dao = (it.application as MyApplication).getBookDao()
-                val signal = CountDownLatch(1)
-                val localBooks = dao.getAllBooks()
-                signal.countDown()
-                signal.await()
+                val localBooks = runBlocking(Dispatchers.IO) {
+                    dao.getAllBooks()
+                }
                 assertTrue(localBooks.map { it.title }.contains(TestData.book.title))
             }
         }

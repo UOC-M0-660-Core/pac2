@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class Ex7Test {
+class Ex5Test {
 
     @Test
     fun containsAdBanner() {

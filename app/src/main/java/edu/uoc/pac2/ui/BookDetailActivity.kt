@@ -34,14 +34,4 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Override finish animation for actionbar back arrow
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-    }
-
-    // TODO: Override finish animation for phone back button
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
-
 }

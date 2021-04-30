@@ -49,16 +49,6 @@
         "comparison": "included",
         "timeout": 15,
         "points": 10
-      },
-      {
-        "name": "Exercise 7",
-        "setup": "sh .github/scripts/setup_emulators.sh",
-        "run": "./gradlew app:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=edu.uoc.pac2.Ex7Test",
-        "input": "",
-        "output": "",
-        "comparison": "included",
-        "timeout": 15,
-        "points": 10
       }
     ]
   }
